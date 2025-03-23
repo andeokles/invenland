@@ -19,7 +19,8 @@ export const useConfiguratorStore = create((set) => ({
     const assets = await pb.collection('CustomizationAssets').getFullList({
         sort: '-created',
     });
+    
     set({categories, currentCategory: categories[0], assets });
   },
   setCurrentCategory: (category) => set({currentCategory: category}),
-}))
+}));

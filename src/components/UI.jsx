@@ -36,7 +36,7 @@ export const UI = () => {
             <div className="mx-auto h-full max-w-screen-xl w-full flex flex-col justify-between">
             <div className="flex justify-between items-center">
             <a className="pointer-events-auto" href="https://braintrainerstilo.com.mx">
-                <img className="w-20" src="/images/wawasensei-white.png"></img>
+                <img className="w-20" src="/images/BTS.png"></img>
             </a>
             <DownloadButton></DownloadButton>
             </div>
