@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans:  sans-serif, "Poppins";
+  --font-weight-bold: 700; 
+}
+
 #root {
   width: 100vw;
   height: 100vw;
@@ -7,4 +12,13 @@
 
 body {
   margin: 0;
+}
+
+.noscrollbar {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.noscrollbar::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
