@@ -1,4 +1,4 @@
-import { useAnimations, useFBX, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useRef } from "react";
 import { GLTFExporter } from "three-stdlib";
 import { pb, useConfiguratorStore } from "../store";
@@ -7,10 +7,12 @@ import { Asset } from "./Asset";
 export const Avatar = ({ ...props }) => {
   const group = useRef();
   const { nodes } = useGLTF("/models/Armature.glb");
-  const { animations } = useFBX("/models/Idle.fbx");
+  const { animations } = useGLTF("/models/Poses.glb");
   const customization = useConfiguratorStore((state) => state.customization);
   const { actions } = useAnimations(animations, group);
   const setDownload = useConfiguratorStore((state) => state.setDownload);
+
+  const pose = useConfiguratorStore((state) => state.pose);
 
   useEffect(() => {
     function download() {
@@ -43,8 +45,9 @@ export const Avatar = ({ ...props }) => {
   }, []);
 
   useEffect(() => {
-    actions["mixamo.com"]?.play();
-  }, [actions]);
+    actions[pose]?.fadeIn(0.2).play();
+    return () => actions[pose]?.fadeOut(0.2).stop();
+  }, [actions, pose]);
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

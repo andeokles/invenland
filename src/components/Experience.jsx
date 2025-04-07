@@ -1,27 +1,70 @@
-import {
-  Backdrop,
-  Environment,
-  OrbitControls,
-  SoftShadows,
-} from "@react-three/drei";
+import { Environment, SoftShadows } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
+import { useEffect } from "react";
+import { useConfiguratorStore } from "../store";
 import { Avatar } from "./Avatar";
+import { CameraManager } from "./CameraManager";
 
 export const Experience = () => {
+  const setScreenshot = useConfiguratorStore((state) => state.setScreenshot);
+  const gl = useThree((state) => state.gl);
+  useEffect(() => {
+    const screenshot = () => {
+      const overlayCanvas = document.createElement("canvas");
+
+      overlayCanvas.width = gl.domElement.width;
+      overlayCanvas.height = gl.domElement.height;
+      const overlayCtx = overlayCanvas.getContext("2d");
+      if (!overlayCtx) {
+        return;
+      }
+      // Draw the original rendered image onto the overlay canvas
+      overlayCtx.drawImage(gl.domElement, 0, 0);
+
+      // Create an image element for the logo
+      const logo = new Image();
+      logo.src = "/images/wawasensei-white.png";
+      logo.crossOrigin = "anonymous";
+      logo.onload = () => {
+        // Draw the logo onto the overlay canvas
+        const logoWidth = 765 / 4; // Adjust the width of the logo
+        const logoHeight = 370 / 4; // Adjust the height of the logo
+        const x = overlayCanvas.width - logoWidth - 42; // Adjust the position of the logo
+        const y = overlayCanvas.height - logoHeight - 42; // Adjust the position of the logo
+        overlayCtx.drawImage(logo, x, y, logoWidth, logoHeight);
+
+        // Create a link element to download the image
+        const link = document.createElement("a");
+        const date = new Date();
+        link.setAttribute(
+          "download",
+          `Avatar_${
+            date.toISOString().split("T")[0]
+          }_${date.toLocaleTimeString()}.png`
+        );
+        link.setAttribute(
+          "href",
+          overlayCanvas
+            .toDataURL("image/png")
+            .replace("image/png", "image/octet-stream")
+        );
+        link.click();
+      };
+    };
+    setScreenshot(screenshot);
+  }, [gl]);
+
   return (
     <>
-      <OrbitControls
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2}
-        minAzimuthAngle={-Math.PI / 4}
-        maxAzimuthAngle={Math.PI / 4}
-      />
+      <CameraManager />
       <Environment preset="sunset" environmentIntensity={0.3} />
 
-      <Backdrop scale={[50, 10, 5]} floor={1.5} receiveShadow position-z={-4}>
-        <meshStandardMaterial color="#555" />
-      </Backdrop>
+      <mesh receiveShadow rotation-x={-Math.PI / 2}>
+        <planeGeometry args={[100, 100]} />
+        <meshStandardMaterial color="#333" roughness={0.85} />
+      </mesh>
 
-      <SoftShadows size={52} samples={16} />
+      <SoftShadows size={52} samples={16} focus={0.5} />
 
       {/* Key Light */}
       <directionalLight
@@ -35,8 +78,12 @@ export const Experience = () => {
       {/* Fill Light */}
       <directionalLight position={[-5, 5, 5]} intensity={0.7} />
       {/* Back Lights */}
-      <directionalLight position={[1, 0.1, -5]} intensity={3} color={"red"} />
-      <directionalLight position={[-1, 0.1, -5]} intensity={8} color={"blue"} />
+      <directionalLight position={[3, 3, -5]} intensity={6} color={"#333"} />
+      <directionalLight
+        position={[-3, 3, -5]}
+        intensity={8}
+        color={"#333"}
+      />
       <Avatar />
     </>
   );

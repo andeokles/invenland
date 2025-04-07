@@ -8,16 +8,43 @@ if (!pocketBaseUrl) {
   throw new Error("VITE_POCKETBASE_URL is required");
 }
 
+export const PHOTO_POSES = {
+  Quieto: "Quieto",
+  Uprock: "Uprock",
+  Breakdance: "Breakdance",
+  Rumba: "Rumba",
+
+};
+
+export const UI_MODES = {
+  PHOTO: "photo",
+  CUSTOMIZE: "customize",
+};
+
 export const pb = new PocketBase(pocketBaseUrl);
 
 export const useConfiguratorStore = create((set, get) => ({
+  mode: UI_MODES.CUSTOMIZE,
+  setMode: (mode) => {
+    set({ mode });
+    if (mode === UI_MODES.CUSTOMIZE) {
+      set({ pose: PHOTO_POSES.Quieto });
+    }
+  },
+  pose: PHOTO_POSES.Quieto,
+  setPose: (pose) => set({ pose }),
   categories: [],
   currentCategory: null,
   assets: [],
+  lockedGroups:{
+
+  },
   skin: new MeshStandardMaterial({ color: 0xf5c6a5, roughness: 1 }),
   customization: {},
   download: () => {},
   setDownload: (download) => set({ download }),
+  screenshot: () => {},
+  setScreenshot: (screenshot) => set({ screenshot }),
   updateColor: (color) => {
     set((state) => ({
         customization: {
@@ -39,7 +66,7 @@ updateSkin: (color) => {
     // you can also fetch all records at once via getFullList
     const categories = await pb.collection("CustomizationGroups").getFullList({
       sort: "+position",
-      expand: "colorPalette"
+      expand: "colorPalette,cameraPlacement",
     });
     const assets = await pb.collection("CustomizationAssets").getFullList({
       sort: "-created",
@@ -58,9 +85,10 @@ updateSkin: (color) => {
     });
 
     set({ categories, currentCategory: categories[0], assets, customization });
+    get().applyLockedAssets();
   },
   setCurrentCategory: (category) => set({ currentCategory: category }),
-  changeAsset: (category, asset) =>
+  changeAsset: (category, asset) => {
     set((state) => ({
       customization: {
         ...state.customization,
@@ -69,8 +97,10 @@ updateSkin: (color) => {
           asset,
         },
       },
-    })),
-    randomize: () => {
+    }));
+    get().applyLockedAssets();
+  },
+  randomize: () => {
     const customization = {};
     get().categories.forEach((category) => {
       let randomAsset = category.assets[randInt(0, category.assets.length - 1)];
@@ -87,10 +117,39 @@ updateSkin: (color) => {
         asset: randomAsset,
         color: randomColor,
       };
-      if (category.name === "Head") {
+      if (category.name === "Cabeza") {
         get().updateSkin(randomColor);
       }
     });
     set({ customization });
+    get().applyLockedAssets();
+  },
+
+  applyLockedAssets: () => {
+    const customization = get().customization;
+    const categories = get().categories;
+    const lockedGroups = {};
+
+    Object.values(customization).forEach((category) => {
+      if (category.asset?.lockedGroups) {
+        category.asset.lockedGroups.forEach((group) => {
+          const categoryName = categories.find(
+            (category) => category.id === group
+          ).name;
+          if (!lockedGroups[categoryName]) {
+            lockedGroups[categoryName] = [];
+          }
+          const lockingAssetCategoryName = categories.find(
+            (cat) => cat.id === category.asset.group
+          ).name;
+          lockedGroups[categoryName].push({
+            name: category.asset.name,
+            categoryName: lockingAssetCategoryName,
+          });
+        });
+      }
+    });
+
+    set({ lockedGroups });
   },
 }));
