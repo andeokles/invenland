@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,800;1,6..12,400&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -13,11 +13,10 @@ body {
   margin: 0;
 }
 
-.noscrollbar {
-  overflow-x: auto;
-  scrollbar-width: none; /* For Firefox */
-}
-
-.noscrollbar::-webkit-scrollbar {
-  display: none; /* For Chrome, Safari, and Opera */
+@font-face {
+  font-family: 'DancingScript';
+  src: url('fonts/DancingScript-Regular.otf') format('opentype');
+  font-weight: 700;        /* ajusta si es regular, bold, etc. */
+  font-style: normal;
+  font-display: swap;      /* mantiene el texto visible mientras carga */
 }

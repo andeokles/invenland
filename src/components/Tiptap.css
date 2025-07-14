@@ -1,0 +1,33 @@
+.tiptap {
+    width: 80vw;
+    max-width: 1000px;
+    height: 90vh;
+    overflow: auto;
+    margin: 40px auto;
+    margin-top: 80px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    min-height: 50vh;
+    z-index: 0;
+    &:focus {
+        outline: 2px solid blue;
+    }
+
+    pre {
+        background: #f2f2f2;
+        color: black;
+        padding: 8px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+
+    ul, li {
+        margin-left: 20px;
+    }
+
+    img {
+        max-width: 50%;
+        border-radius: 5px;
+    }
+}
